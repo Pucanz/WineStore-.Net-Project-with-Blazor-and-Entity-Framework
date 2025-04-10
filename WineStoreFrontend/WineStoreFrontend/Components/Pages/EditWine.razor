@@ -1,0 +1,142 @@
+﻿@page "/editwine/{id:int}"
+@rendermode InteractiveServer
+
+@inject WineStoreClient WineStoreClient
+@inject CategoryStoreClient CategoryStoreClient
+@inject NavigationManager NavigationManager
+
+<PageTitle>@title</PageTitle>
+
+@if (wine is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm Model="@wine" FormName="wineForm" OnValidSubmit="HandleValidSubmitAsync" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <div class="mb-3">
+                    <label class="form-label">Name</label>
+                    <InputText class="form-control" @bind-Value="wine.Name" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Winery</label>
+                    <InputText class="form-control" @bind-Value="wine.Winery" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Description</label>
+                    <InputTextArea class="form-control" @bind-Value="wine.Description" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Location</label>
+                    <InputText class="form-control" @bind-Value="wine.Location" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Category</label>
+                    <InputSelect class="form-control" @bind-Value="wine.Category">
+                        <option value="">-- Select a Category --</option>
+                        @if (categories is not null)
+                        {
+                            foreach (var category in categories)
+                            {
+                                <option value="@category.Id">@category.Label</option>
+                            }
+                        }
+                    </InputSelect>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Price</label>
+                    <InputNumber class="form-control" @bind-Value="wine.Price" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Stock</label>
+                    <InputNumber class="form-control" @bind-Value="wine.Stock" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Image</label><br />
+                    <InputText class="form-control" @bind-Value="wine.ImageUrl" />
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <button type="submit" class="btn btn-success">Save</button>
+                    <a href="/winestore" class="btn btn-secondary">Cancel</a>
+                </div>
+            </EditForm>
+        </div>
+
+        <div class="col-md-6 d-flex flex-column justify-content-center align-items-center">
+            <img src="@wine.ImageUrl" alt="Wine Image" style="max-height: 200px;" />
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public int id { get; set; }
+
+    private string title = string.Empty;
+    private WineStoreSummary? wine { get; set; }
+    private Category[]? categories { get; set; }
+    private string priceString = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        wine = await WineStoreClient.GetWineByIdAsync(id);
+        if (wine != null)
+        {
+            priceString = wine.Price.ToString("F2");
+            title = $"Edit {wine.Name}";
+        }
+
+        categories = await CategoryStoreClient.GetCategoriesAsync();
+    }
+
+private async Task HandleValidSubmitAsync()
+{
+    if (wine is not null)
+    {
+        
+        var wineDto = new WineStoreDto
+        {
+          
+            Id = wine.Id,
+            Name = wine.Name,
+            Winery = wine.Winery,
+            Location = wine.Location,
+            Description = wine.Description,
+            Price = decimal.Parse(priceString),
+            Stock = wine.Stock,
+            CategoryId = GetCategoryIdFromName(wine.Category),
+            Image = wine.ImageUrl
+        };
+
+    
+        await WineStoreClient.UpdateWineAsync(wineDto);
+    }
+
+    
+    NavigationManager.NavigateTo("/winestore");
+}
+
+private int GetCategoryIdFromName(string categoryName)
+{
+    if (categories is not null)
+    {
+        var category = categories.FirstOrDefault(c => c.Label == categoryName);
+        return category?.Id ?? 0;
+    }
+    return 0;
+}
+
+
+}

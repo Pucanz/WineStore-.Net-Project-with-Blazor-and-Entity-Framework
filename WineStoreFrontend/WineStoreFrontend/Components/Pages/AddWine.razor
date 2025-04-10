@@ -1,0 +1,130 @@
+﻿@page "/addwine/{id:int}"
+
+@inject WineClientApi WineClientApi
+@inject WineStoreClient WineStoreClient
+@inject CategoryClientApi CategoryClientApi
+@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
+
+
+<PageTitle>Add Wine</PageTitle>
+
+@if (wine is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm Model="wine.Product" OnValidSubmit="HandleValidSubmitAsync">>
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <div class="mb-3">
+                    <label class="form-label">Name</label>
+                    <InputText class="form-control" @bind-Value="wine.Product.Name" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Winery</label>
+                    <InputText class="form-control" @bind-Value="wine.Product.Winery" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Description</label>
+                    <InputTextArea class="form-control" @bind-Value="wine.Product.Description" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Location</label>
+                    <InputText class="form-control" @bind-Value="wine.Product.Location" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Category</label>
+                    <InputSelect class="form-control" @bind-Value="wine.Product.ProductCategoryId">
+                        <option value="">-- Select a Category --</option>
+                        @if (categories is not null)
+                        {
+                            foreach (var category in categories)
+                            {
+                                <option value="@category.Id">@category.Label</option>
+                            }
+                        }
+                    </InputSelect>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Price</label>
+                    <InputText class="form-control" @bind-Value="priceString" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Stock</label>
+                    <InputNumber class="form-control" @bind-Value="wine.Product.Stock" />
+                </div>
+
+                <div class="mb-3">
+
+                    <label class="form-label">Image</label><br />
+                    <InputText id="image" @bind-Value="wine.ProductImage!.Image" class="form-control" />
+                    <ValidationMessage For="() => wine.ProductImage.Image" class="text-danger" />
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <button type="submit" class="btn btn-success">Save</button>
+                    <a href="/winestoreapi" class="btn btn-secondary">Cancel</a>
+                </div>
+            </EditForm>
+        </div>
+
+        <div class="col-md-6 d-flex flex-column justify-content-center align-items-center">
+            <div class="mb-3"></div>
+            <label class="form-label"></label><br />
+            <img src="@wine.ProductImage?.Image" alt="Wine Image" style="max-height: 200px;" />
+        </div>
+    </div>
+}
+
+
+@code {
+    [Parameter]
+    public int id { get; set; } = 0;
+    private WineDetailsApi? wine { get; set; }
+
+    private Category[]? categories { get; set; }
+
+    private string name = string.Empty;
+    private string priceString = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        wine = await WineClientApi.GetWineByIdAsync(id);
+        categories = await CategoryClientApi.GetCategoriesAsync();
+        priceString = wine.Product.Price.ToString("F2");
+
+    }
+
+    private async Task HandleValidSubmitAsync()
+    {   
+        var newWine = new WineStoreDto
+        {
+            Name = wine!.Product.Name,
+            Winery = wine.Product.Winery,
+            Description = wine.Product.Description,
+            Location = wine.Product.Location,
+            CategoryId = wine.Product.ProductCategoryId,
+            Price = wine.Product.Price,
+            Stock = wine.Product.Stock,
+            Image = wine.ProductImage?.Image
+        };
+        
+
+        await WineStoreClient.AddWineAsync(newWine);
+        Console.WriteLine(newWine.ToString());
+
+        NavigationManager.NavigateTo("/winestoreapi");
+    }
+
+
+}

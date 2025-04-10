@@ -1,0 +1,66 @@
+﻿@page "/winestoreapi"
+@inject WineClientApi Client
+@using WineStoreFrontend.Models
+@using WineStoreFrontend.Clients
+@using Microsoft.AspNetCore.Components.Forms
+
+<PageTitle>Wine Store Api</PageTitle>
+
+<h3>Wine Store Api</h3>
+
+
+@if (wines is null)
+{
+    <p></p>
+}
+else
+{
+    <table class="table table-striped table-bordered table hover mt-3">
+        <thead class="table-dark">
+            <th>Id</th>
+            <th>Name</th>
+            <th>Winery</th>
+            <th>Location</th>
+            <th>Description</th>
+            <th>Category</th>
+            <th class="text-end">Price</th>
+            <th>Stock</th>
+            <th>Image</th>
+            <th></th>
+        </thead>
+        <tbody>
+            @foreach (var wine in wines)
+            {
+                <tr>
+                    <td>@wine.Product.Id</td>
+                    <td>@wine.Product.Name</td>
+                    <td>@wine.Product.Winery</td>
+                    <td>@wine.Product.Location</td>
+                    <td>@wine.Product.Description</td>
+                    <td>@wine.ProductCategory.Label</td>
+                    <td class="text-end">@wine.Product.Price.ToString("C2")</td>
+                    <td>@wine.Product.Stock</td>
+                    <td><img src="@wine.ProductImage?.Image"></td>
+
+                    <td>
+                        <div class="d-flex justify-content-center">
+                            <a class="btn btn-primary me-2" role="button" href="/addwine/@wine.Product.Id">
+                                <i class="bi bi-plus-square"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private WineDetailsApi[]? wines;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        wines = await Client.GetWinesAsync();
+    }
+}

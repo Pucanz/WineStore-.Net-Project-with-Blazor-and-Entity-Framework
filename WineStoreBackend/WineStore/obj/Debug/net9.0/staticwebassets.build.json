@@ -1,0 +1,12 @@
+{
+  "Version": 1,
+  "Hash": "6l9HFf7CKl4fK6nRqIUn/b1uve1geAOd/yPt8SP5WnU=",
+  "Source": "WineStore",
+  "BasePath": "_content/WineStore",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": [],
+  "Endpoints": []
+}

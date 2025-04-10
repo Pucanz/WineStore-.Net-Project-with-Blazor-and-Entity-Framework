@@ -1,0 +1,46 @@
+### Get all wines
+GET http://localhost:5296/wines
+
+###
+
+### Get wine by ID
+GET http://localhost:5296/wines/5
+
+###
+
+### Create a new wine
+POST http://localhost:5296/wines
+Content-Type: application/json
+
+{
+  "name": "Test Wine",
+  "winery": "ChatGPT Vineyards",
+  "location": "Portugal",
+  "description": "A rich, bold red wine with hints of oak and chocolate.",
+  "price": 14.99,
+  "image": "https://example.com/wine.jpg",
+  "stock": 20,
+  "categoryId": 2
+}
+
+###
+
+### Update a wine
+PUT http://localhost:5296/wines/5
+Content-Type: application/json
+
+{
+  "name": "Amarone della Valpolicella Riserva N.V.",
+  "winery": "Ernesto Ruffo",
+  "location": "Amarone della Valpolicella, Italy",
+  "description": "The Amarone della Valpolicella Riserva N.V. is a rich, full-bodied wine with notes of dried fruits, dark chocolate, and spices, featuring velvety tannins and a long finish.",
+  "price": 50,
+  "image": "https://images.vivino.com/thumbs/nC9V6L2mQQSq0s-wZLcaxw_pb_x300.png",
+  "stock": 100,
+  "categoryId": 2
+}
+
+###
+
+### Delete a wine
+DELETE http://localhost:5296/wines/1

@@ -1,0 +1,73 @@
+﻿@page "/winestore"
+
+@inject WineStoreClient Client
+
+<PageTitle>Wine Store</PageTitle>
+
+@if (wines is null)
+{
+    <p></p>
+}
+else
+{
+    <table class="table table-striped table-bordered table hover mt-3">
+        <thead class="table-dark">
+            <th>Id</th>
+            <th>Name</th>
+            <th>Winery</th>
+            <th>Location</th>
+            <th>Description</th>
+            <th>Category</th>
+            <th class="text-end">Price</th>
+            <th>Stock</th>
+            <th>Image</th>
+            <th></th>
+        </thead>
+        <tbody>
+            @foreach (var wine in wines)
+            {
+                <tr>
+                    <td>@wine.Id</td>
+                    <td>@wine.Name</td>
+                    <td>@wine.Winery</td>
+                    <td>@wine.Location</td>
+                    <td>@wine.Description</td>
+                    <td>@wine.Category</td>
+                    <td>@wine.Price.ToString("C2")</td>
+                    <td>@wine.Stock</td>
+                    <td><img src="@wine.ImageUrl"></td>
+
+                    <td>
+                        <div class="d-flex justify-content-center">
+                            <a class="btn btn-primary me-2" role="button" href="/editwine/@wine.Id">
+                                <i class="bi bi-plus-square"></i>
+                            </a>
+                                <button class="btn btn-danger" 
+                                data-bs-toggle="modal" 
+                                data-bs-target="@GetDeleteModalId(wine)">
+                            <i class="bi bi-x-lg"></i>        
+                        </button>
+                        </div>
+                        <DeleteWine Wine="@wine" />
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private WineStoreSummary [] ? wines;
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        wines = await Client.GetWinesAsync();
+    }
+
+      private string GetDeleteModalId(WineStoreSummary wine)
+    {
+        return $"#{DeleteWine.GetModalId(wine)}";
+    }   
+}
